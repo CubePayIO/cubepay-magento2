@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2016 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Payment Method Facade configuration -->
+    <virtualType name="CubepayPaymentGatewayFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">\Cubepay\PaymentGateway\Model\Ui\ConfigProvider::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Cubepay\PaymentGateway\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">CubepayPaymentGatewayValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">CubepayPaymentGatewayCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Configuration reader -->
+    <virtualType name="CubepayPaymentGatewayConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">\Cubepay\PaymentGateway\Model\Ui\ConfigProvider::CODE</argument>
+        </arguments>
+    </virtualType>
+
+
+    <!-- Commands infrastructure -->
+    <virtualType name="CubepayPaymentGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="authorize" xsi:type="string">CubepayPaymentGatewayAuthorizeCommand</item>
+                <item name="capture" xsi:type="string">CubepayPaymentGatewayCaptureCommand</item>
+                <item name="void" xsi:type="string">CubepayPaymentGatewayVoidCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Authorize command -->
+    <virtualType name="CubepayPaymentGatewayAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">CubepayPaymentGatewayAuthorizationRequest</argument>
+            <argument name="handler" xsi:type="object">CubepayPaymentGatewayResponseHandlerComposite</argument>
+            <argument name="transferFactory" xsi:type="object">Cubepay\PaymentGateway\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Cubepay\PaymentGateway\Gateway\Http\Client</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Authorization Request -->
+    <virtualType name="CubepayPaymentGatewayAuthorizationRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">Cubepay\PaymentGateway\Gateway\Request\AuthorizationRequest</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Cubepay\PaymentGateway\Gateway\Request\AuthorizationRequest">
+        <arguments>
+            <argument name="config" xsi:type="object">CubepayPaymentGatewayConfig</argument>
+        </arguments>
+    </type>
+
+    <!-- Capture command -->
+    <virtualType name="CubepayPaymentGatewayCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">Cubepay\PaymentGateway\Gateway\Request\CaptureRequest</argument>
+            <argument name="handler" xsi:type="object">Cubepay\PaymentGateway\Gateway\Response\TxnIdHandler</argument>
+            <argument name="transferFactory" xsi:type="object">Cubepay\PaymentGateway\Gateway\Http\TransferFactory</argument>
+            <argument name="validator" xsi:type="object">Cubepay\PaymentGateway\Gateway\Validator\ResponseCodeValidator</argument>
+            <argument name="client" xsi:type="object">Cubepay\PaymentGateway\Gateway\Http\Client</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Capture Request -->
+    <type name="Cubepay\PaymentGateway\Gateway\Request\CaptureRequest">
+        <arguments>
+            <argument name="config" xsi:type="object">CubepayPaymentGatewayConfig</argument>
+        </arguments>
+    </type>
+
+    <!-- Void command -->
+    <virtualType name="CubepayPaymentGatewayVoidCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">Cubepay\PaymentGateway\Gateway\Request\VoidRequest</argument>
+            <argument name="handler" xsi:type="object">Cubepay\PaymentGateway\Gateway\Response\TxnIdHandler</argument>
+            <argument name="transferFactory" xsi:type="object">Cubepay\PaymentGateway\Gateway\Http\TransferFactory</argument>
+            <argument name="validator" xsi:type="object">Cubepay\PaymentGateway\Gateway\Validator\ResponseCodeValidator</argument>
+            <argument name="client" xsi:type="object">Cubepay\PaymentGateway\Gateway\Http\Client</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Void Request -->
+    <type name="Cubepay\PaymentGateway\Gateway\Request\VoidRequest">
+        <arguments>
+            <argument name="config" xsi:type="object">CubepayPaymentGatewayConfig</argument>
+        </arguments>
+    </type>
+
+    <!-- Response handlers -->
+    <virtualType name="CubepayPaymentGatewayResponseHandlerComposite" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="txnid" xsi:type="string">Cubepay\PaymentGateway\Gateway\Response\TxnIdHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Value handlers infrastructure -->
+    <virtualType name="CubepayPaymentGatewayValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">CubepayPaymentGatewayConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="CubepayPaymentGatewayConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">CubepayPaymentGatewayConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Cubepay\PaymentGateway\Block\Info">
+        <arguments>
+            <argument name="config" xsi:type="object">CubepayPaymentGatewayConfig</argument>
+        </arguments>
+    </type>
+
+</config>
