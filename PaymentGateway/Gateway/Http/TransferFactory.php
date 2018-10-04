@@ -43,14 +43,14 @@ class TransferFactory implements TransferFactoryInterface
     {
         try {
             if (!$request['API_URL']) {
-                $request['API_URL'] = 'http://api.cubepay.io/payment';
+                $request['API_URL'] = 'http://api.cubepay.io';
             }
             $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
             $domainName = $protocol . $_SERVER['HTTP_HOST'];
 
             $cubepayRequest = [
                 'client_id' => $request['MERCHANT_ID'],
-                'source_coin_id' => '443',
+                'source_coin_id' => $request['AVAILABLE_CURRENCY'],
                 'source_amount' => $request['AMOUNT'],
                 'item_name' => @strip_tags($request['GOODS']),
                 'merchant_transaction_id' => $request['INVOICE'],
@@ -61,7 +61,7 @@ class TransferFactory implements TransferFactoryInterface
             $result = $this->transferBuilder
                 ->setBody($cubepayRequest)
                 ->setMethod('POST')
-                ->setUri($request['API_URL'])
+                ->setUri($request['API_URL'] . '/payment')
                 ->build();
             return $result;
         } catch (\Exception $e) {
