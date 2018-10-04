@@ -26,4 +26,4 @@ php  bin/magento cache:flush
 - open Magento Admin panel and login as Admin
 - click Stores -> Configuration -> Sales -> Payment Methods
 - setup your Merchant Gateway ID and Merchant Gateway Secret
-- adjust your payment gateway Api Url as 'http://api.cubepay.io/payment'
+- adjust your payment gateway Api Url as 'http://api.cubepay.io'
