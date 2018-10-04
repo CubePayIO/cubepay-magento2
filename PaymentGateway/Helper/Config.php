@@ -10,6 +10,7 @@ class Config extends AbstractHelper
 {
     const XML_MERCHANT_SECRET = 'payment/cubepay_gateway/merchant_gateway_secret';
     const XML_MERCHANT_ID = 'payment/cubepay_gateway/merchant_gateway_id';
+    const API_URL = 'payment/cubepay_gateway/api_url';
 
     protected $encryptor;
     protected $_config;
@@ -26,11 +27,19 @@ class Config extends AbstractHelper
     public function getPassword()
     {
         $password = $this->_config->getValue(self::XML_MERCHANT_SECRET, 'default');
-        return ($password);
+        return $password;
     }
 
     public function getId()
     {
         $password = $this->_config->getValue(self::XML_MERCHANT_ID, 'default');
-        return ($password);
-    }}
+        return $password;
+    }
+
+    public function getApiUrl()
+    {
+        $url = $this->_config->getValue(self::API_URL, 'default');
+        return $url;
+    }
+
+}
